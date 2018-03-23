@@ -13,7 +13,7 @@ env:
     - DJANGO=1.11
 
 install:
-    - pip install -q django==$DJANGO --use-mirrors
+    - pip install -q Django==$DJANGO
     - make install
 
 script:
