@@ -9,16 +9,16 @@ class InspectModel(models.Model):
     int = models.IntegerField()
     char = models.CharField()
     text = models.TextField()
-    direct_fk = models.ForeignKey("DirectFK")
+    direct_fk = models.ForeignKey("DirectFK", on_delete=models.CASCADE)
     many_to_many = models.ManyToManyField("AnotherManyToMany")
 
 
 class FK(models.Model):
-    inspect_model = models.ForeignKey(InspectModel)
+    inspect_model = models.ForeignKey(InspectModel, on_delete=models.CASCADE)
 
 
 class AnotherFK(models.Model):
-    inspect_model = models.ForeignKey(InspectModel)
+    inspect_model = models.ForeignKey(InspectModel, on_delete=models.CASCADE)
 
 
 class DirectFK(models.Model):
@@ -31,7 +31,7 @@ class ManyToMany(models.Model):
 
 
 class AnotherManyToMany(models.Model):
-    some_item = models.ForeignKey("SomeItem")
+    some_item = models.ForeignKey("SomeItem", on_delete=models.CASCADE)
 
 
 class SomeItem(models.Model):

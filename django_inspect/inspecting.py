@@ -1,6 +1,31 @@
+from six import string_types
 import inspect
 
 from django.db import models
+
+
+def get_all_related_objects(model):
+    try:
+        return model._meta.get_all_related_objects()
+    except AttributeError:
+        return [
+            f for f in model._meta.get_fields() if
+            (f.one_to_many or f.one_to_one) and
+            f.auto_created and not f.concrete
+        ]
+
+def get_all_related_m2m_objects_with_model(obj):
+    return  [
+        (f, f.model if f.model != obj.__class__ else None)
+        for f in obj._meta.get_fields(include_hidden=True)
+        if f.many_to_many and f.auto_created
+    ]
+
+def get_all_related_many_to_many_objects(opts):
+    return [f for f in opts.get_fields(include_hidden=True) if f.many_to_many and f.auto_created]
+
+def get_compat_local_fields(obj):
+    return obj._meta.get_fields()
 
 
 class Inspect(object):
@@ -57,8 +82,8 @@ class Inspect(object):
         self._setup_fields(False, local_fields + many_to_many)
 
     def _setup_backwards_fields(self):
-        self._setup_fields(True, self.opts.get_all_related_objects()
-                           + self.opts.get_all_related_many_to_many_objects())
+        self._setup_fields(True, get_all_related_objects(self.model)
+                           + get_all_related_many_to_many_objects(self.opts))
 
     def _setup(self):
         self.fields = []
@@ -82,7 +107,7 @@ class Inspect(object):
         self._setup_ready = True
 
     def sub_inspect(self, path):
-        if isinstance(path, basestring):
+        if isinstance(path, string_types):
             path = path.split(".")
         fieldname = path.pop(0)
         try:
